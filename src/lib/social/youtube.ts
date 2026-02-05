@@ -97,18 +97,23 @@ export async function getRecentVideos(
 
     return posts;
   } catch (error) {
+    console.error("Error fetching recent videos:", error);
+    return [];
+  }
+}
+
 export async function getChannelVideos(
   channelId: string,
-  limit: number = 25
+  limit: number = 25,
 ): Promise<SocialPost[]> {
   try {
     if (!YOUTUBE_API_KEY) {
-      throw new Error('Missing YouTube API key');
+      throw new Error("Missing YouTube API key");
     }
 
     // First, get uploads playlist ID
     const channelResponse = await fetch(
-      `${YOUTUBE_API_BASE}/channels?id=${channelId}&part=contentDetails&key=${YOUTUBE_API_KEY}`
+      `${YOUTUBE_API_BASE}/channels?id=${channelId}&part=contentDetails&key=${YOUTUBE_API_KEY}`,
     );
 
     if (!channelResponse.ok) {
@@ -120,12 +125,12 @@ export async function getChannelVideos(
       channelData.items?.[0]?.contentDetails?.relatedPlaylists?.uploads;
 
     if (!uploadsPlaylistId) {
-      throw new Error('Could not find uploads playlist');
+      throw new Error("Could not find uploads playlist");
     }
 
     // Get videos from uploads playlist
     const videosResponse = await fetch(
-      `${YOUTUBE_API_BASE}/playlistItems?playlistId=${uploadsPlaylistId}&part=snippet&maxResults=${limit}&key=${YOUTUBE_API_KEY}`
+      `${YOUTUBE_API_BASE}/playlistItems?playlistId=${uploadsPlaylistId}&part=snippet&maxResults=${limit}&key=${YOUTUBE_API_KEY}`,
     );
 
     if (!videosResponse.ok) {
@@ -135,7 +140,7 @@ export async function getChannelVideos(
     const videosData = await videosResponse.json();
     const videoIds = videosData.items
       ?.map((item: any) => item.snippet.resourceId.videoId)
-      .join(',');
+      .join(",");
 
     if (!videoIds) {
       return [];
@@ -143,7 +148,7 @@ export async function getChannelVideos(
 
     // Get video statistics
     const statsResponse = await fetch(
-      `${YOUTUBE_API_BASE}/videos?id=${videoIds}&part=snippet,statistics&key=${YOUTUBE_API_KEY}`
+      `${YOUTUBE_API_BASE}/videos?id=${videoIds}&part=snippet,statistics&key=${YOUTUBE_API_KEY}`,
     );
 
     if (!statsResponse.ok) {
@@ -155,15 +160,15 @@ export async function getChannelVideos(
 
     return videos.map((video) => transformYouTubeVideoWithStats(video));
   } catch (error) {
-    console.error('Error fetching YouTube videos:', error);
+    console.error("Error fetching YouTube videos:", error);
     throw error;
   }
 }
 
 function transformYouTubeVideoWithStats(video: YouTubeVideo): SocialPost {
-  const views = parseInt(String(video.statistics?.viewCount || '0'), 10);
-  const likes = parseInt(String(video.statistics?.likeCount || '0'), 10);
-  const comments = parseInt(String(video.statistics?.commentCount || '0'), 10);
+  const views = parseInt(String(video.statistics?.viewCount || "0"), 10);
+  const likes = parseInt(String(video.statistics?.likeCount || "0"), 10);
+  const comments = parseInt(String(video.statistics?.commentCount || "0"), 10);
 
   // Estimate engagement rate
   const engagement = likes + comments;
@@ -180,18 +185,18 @@ function transformYouTubeVideoWithStats(video: YouTubeVideo): SocialPost {
 
   // Extract hashtags from description
   const hashtags = (video.snippet.description?.match(/#\w+/g) || []).map(
-    (tag) => tag.substring(1)
+    (tag) => tag.substring(1),
   );
 
   // Extract mentions from description
   const mentions = (video.snippet.description?.match(/@\w+/g) || []).map(
-    (mention) => mention.substring(1)
+    (mention) => mention.substring(1),
   );
 
   return {
-    platform: 'youtube' as Platform,
+    platform: "youtube" as Platform,
     postId: video.id,
-    type: 'video',
+    type: "video",
     content: video.snippet.title,
     mediaUrl: `https://www.youtube.com/watch?v=${video.id}`,
     thumbnailUrl:
@@ -215,11 +220,11 @@ export async function getChannelMetrics(channelId: string): Promise<{
 }> {
   try {
     if (!YOUTUBE_API_KEY) {
-      throw new Error('Missing YouTube API key');
+      throw new Error("Missing YouTube API key");
     }
 
     const response = await fetch(
-      `${YOUTUBE_API_BASE}/channels?id=${channelId}&part=statistics&key=${YOUTUBE_API_KEY}`
+      `${YOUTUBE_API_BASE}/channels?id=${channelId}&part=statistics&key=${YOUTUBE_API_KEY}`,
     );
 
     if (!response.ok) {
@@ -230,12 +235,12 @@ export async function getChannelMetrics(channelId: string): Promise<{
     const stats = data.items?.[0]?.statistics || {};
 
     return {
-      subscribers: parseInt(stats.subscriberCount || '0', 10),
-      totalViews: parseInt(stats.viewCount || '0', 10),
-      totalVideos: parseInt(stats.videoCount || '0', 10),
+      subscribers: parseInt(stats.subscriberCount || "0", 10),
+      totalViews: parseInt(stats.viewCount || "0", 10),
+      totalVideos: parseInt(stats.videoCount || "0", 10),
     };
   } catch (error) {
-    console.error('Error fetching channel metrics:', error);
+    console.error("Error fetching channel metrics:", error);
     return {
       subscribers: 0,
       totalViews: 0,

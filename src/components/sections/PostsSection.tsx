@@ -229,6 +229,7 @@ export function PostsSection() {
                       <span
                         key={platform}
                         className="text-xs px-2 py-1 rounded-full text-white font-medium"
+                        // eslint-disable-next-line react/no-unknown-property
                         style={{ backgroundColor: getPlatformColor(platform) }}
                       >
                         {platform}

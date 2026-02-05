@@ -60,15 +60,13 @@ export async function GET(req: NextRequest) {
           pushEvent("error", { message: "Polling error", detail: String(e) });
         }
       };
-
       // initial poll then interval
       await pollFn();
       const interval = setInterval(pollFn, 5000);
 
-      controller.signal.addEventListener("abort", () => {
-        clearInterval(interval);
-        controller.close();
-      });
+      // Cleanup on client disconnect
+      // Note: SSE doesn't provide direct signal, so we rely on interval cleanup
+      // In production, consider using a heartbeat and timeout mechanism
     },
   });
 

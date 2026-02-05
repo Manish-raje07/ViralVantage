@@ -27,13 +27,6 @@ interface TwitterPost {
   };
 }
 
-interface TwitterMedia {
-  media_key: string;
-  type: "photo" | "video" | "animated_gif";
-  url?: string;
-  preview_image_url?: string;
-}
-
 interface TwitterProfile {
   id: string;
   username: string;
@@ -179,7 +172,7 @@ function transformTweet(tweet: TwitterPost): SocialPost {
   const metrics = tweet.public_metrics;
 
   // Determine post type based on attachments
-  let postType: SocialPost["type"] = "text";
+  const postType: SocialPost["type"] = "text";
   let mediaUrl: string | undefined;
   let thumbnailUrl: string | undefined;
 

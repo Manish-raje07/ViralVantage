@@ -5,9 +5,7 @@ type Status = "idle" | "connecting" | "open" | "closed" | "error";
 
 // Real-time hook for Twitter posts via RapidAPI
 // Requires username to be passed
-export function useTwitterRealtime(options?: {
-  username?: string;
-}) {
+export function useTwitterRealtime(options?: { username?: string }) {
   const { username = "twitter" } = options || {};
   const [data, setData] = useState<SocialPost[]>([]);
   const [status, setStatus] = useState<Status>("idle");
@@ -63,3 +61,6 @@ export function useTwitterRealtime(options?: {
       setStatus("closed");
     };
   }, [username]);
+
+  return { data, status, error };
+}

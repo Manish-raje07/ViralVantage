@@ -19,16 +19,18 @@ export function EngagementSection() {
     const fetchEngagement = async () => {
       try {
         setLoading(true);
-        const response = await fetch('/api/analytics?type=engagement');
-        if (!response.ok) throw new Error('Failed to fetch engagement');
+        const response = await fetch("/api/analytics?type=engagement");
+        if (!response.ok) throw new Error("Failed to fetch engagement");
         const data = await response.json();
-        const transformedEvents = (data.data?.engagementEvents || []).slice(0, 4).map((e: any) => ({
-          id: Math.random(),
-          type: e.type || "Like",
-          user: e.userName || "User",
-          post: e.postContent || "",
-          time: e.timestamp,
-        }));
+        const transformedEvents = (data.data?.engagementEvents || [])
+          .slice(0, 4)
+          .map((e: any) => ({
+            id: Math.random(),
+            type: e.type || "Like",
+            user: e.userName || "User",
+            post: e.postContent || "",
+            time: e.timestamp,
+          }));
         setEvents(transformedEvents);
       } catch (err) {
         setEvents([]);
@@ -51,21 +53,26 @@ export function EngagementSection() {
       ) : (
         <div className="grid gap-4">
           {events.map((e) => (
-          <Card key={e.id}>
-            <CardHeader>
-              <CardTitle className="flex items-center justify-between">
-                <span>{e.type}</span>
-                <span className="text-xs text-muted-foreground">{new Date(e.time).toLocaleString()}</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div>
-                <span className="font-semibold">{e.user}</span> {e.type.toLowerCase()}d on post: <span className="italic">&quot;{e.post}&quot;</span>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+            <Card key={e.id}>
+              <CardHeader>
+                <CardTitle className="flex items-center justify-between">
+                  <span>{e.type}</span>
+                  <span className="text-xs text-muted-foreground">
+                    {new Date(e.time).toLocaleString()}
+                  </span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div>
+                  <span className="font-semibold">{e.user}</span>{" "}
+                  {e.type.toLowerCase()}d on post:{" "}
+                  <span className="italic">&quot;{e.post}&quot;</span>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
