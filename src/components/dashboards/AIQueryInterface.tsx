@@ -103,7 +103,9 @@ export function AIQueryInterface() {
 
           {/* Example Queries */}
           <div>
-            <p className="text-xs font-semibold text-muted-foreground mb-2">Try asking:</p>
+            <p className="text-xs font-semibold text-muted-foreground mb-2">
+              Try asking:
+            </p>
             <div className="flex flex-wrap gap-2">
               {EXAMPLE_QUERIES.map((example, idx) => (
                 <button
@@ -121,14 +123,18 @@ export function AIQueryInterface() {
 
       {/* Insights History */}
       <div className="space-y-4">
-        {insights.length > 0 && <h3 className="text-lg font-semibold">AI Insights</h3>}
+        {insights.length > 0 && (
+          <h3 className="text-lg font-semibold">AI Insights</h3>
+        )}
         {insights.map((insight, idx) => (
           <Card key={idx}>
             <CardContent className="pt-6 space-y-3">
               <div className="flex items-start gap-3">
                 <div className="h-2 w-2 rounded-full bg-blue-500 mt-2 flex-shrink-0" />
                 <div className="flex-1">
-                  <p className="font-medium text-sm text-blue-600">{insight.query}</p>
+                  <p className="font-medium text-sm text-blue-600">
+                    {insight.query}
+                  </p>
                   <p className="text-sm text-muted-foreground mt-1">
                     {insight.timestamp.toLocaleTimeString()}
                   </p>
@@ -146,7 +152,10 @@ export function AIQueryInterface() {
           <Card>
             <CardContent className="pt-6 text-center text-muted-foreground">
               <Lightbulb className="h-8 w-8 mx-auto mb-2 opacity-50" />
-              <p>Ask a question to get AI-powered insights about your social performance</p>
+              <p>
+                Ask a question to get AI-powered insights about your social
+                performance
+              </p>
             </CardContent>
           </Card>
         )}

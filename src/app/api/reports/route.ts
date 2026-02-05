@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
       };
     }
 
-    let posts = await postsCollection
+    const posts = await postsCollection
       .find(query)
       .sort({ publishedAt: -1 })
       .toArray();

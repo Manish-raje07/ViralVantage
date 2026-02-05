@@ -4,8 +4,69 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
-import { Heart, MessageCircle, Share2, Eye, TrendingUp, Download, Zap } from "lucide-react";
+import {
+  BarChart,
+  Bar,
+  LineChart,
+  Line,
+  PieChart,
+  Pie,
+  Cell,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from "recharts";
+import {
+  Heart,
+  MessageCircle,
+  Share2,
+  Eye,
+  TrendingUp,
+  Download,
+  Zap,
+} from "lucide-react";
+
+interface Post {
+  id: string;
+  type?: string;
+  platform?: string;
+  content?: string;
+  mediaUrl?: string;
+  metrics?: {
+    engagementRate?: number;
+    reach?: number;
+    likes?: number;
+    comments?: number;
+    shares?: number;
+  };
+}
+
+interface PlatformData {
+  name?: string;
+  platform?: string;
+  value: number;
+  engagement?: number;
+  followers?: number;
+}
+
+interface PostComparison {
+  name: string;
+  engagement: number | string;
+  avgEngagement?: string | number;
+  count: number;
+  reach: number;
+  totalReach?: number;
+}
+
+interface TrendData {
+  date: string;
+  engagement?: number;
+  reach?: number;
+  followers?: number;
+}
 
 interface MetricsData {
   totalLikes: number;
@@ -14,13 +75,20 @@ interface MetricsData {
   totalReach: number;
   totalImpressions: number;
   avgEngagementRate: number;
-  topPost: any;
-  platformBreakdown: any[];
-  postTypeComparison: any[];
-  trends: any[];
+  topPost: Post | null;
+  platformBreakdown: PlatformData[];
+  postTypeComparison: PostComparison[];
+  trends: TrendData[];
 }
 
-const COLORS = ['#3b82f6', '#ef4444', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899'];
+const COLORS = [
+  "#3b82f6",
+  "#ef4444",
+  "#10b981",
+  "#f59e0b",
+  "#8b5cf6",
+  "#ec4899",
+];
 
 export function UnifiedMetricsDashboard() {
   const [metrics, setMetrics] = useState<MetricsData | null>(null);
@@ -38,13 +106,15 @@ export function UnifiedMetricsDashboard() {
       setError(null);
 
       // Fetch from analytics endpoint
-      const response = await fetch(`/api/analytics?type=overview&period=${timeRange}`);
+      const response = await fetch(
+        `/api/analytics?type=overview&period=${timeRange}`,
+      );
       if (!response.ok) {
         throw new Error(`Failed to fetch metrics: ${response.status}`);
       }
 
       const data = await response.json();
-      
+
       if (data.success && data.data?.overview) {
         const overview = data.data.overview;
         setMetrics({
@@ -56,11 +126,15 @@ export function UnifiedMetricsDashboard() {
           avgEngagementRate: overview.avgEngagementRate || 0,
           topPost: overview.topPost || null,
           platformBreakdown: overview.platforms || [],
-          postTypeComparison: generatePostTypeComparison(overview.recentPosts || []),
+          postTypeComparison: generatePostTypeComparison(
+            overview.recentPosts || [],
+          ),
           trends: overview.trends || [],
         });
       } else {
-        setError("No data available. Please connect your social media accounts.");
+        setError(
+          "No data available. Please connect your social media accounts.",
+        );
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to fetch metrics");
@@ -70,28 +144,36 @@ export function UnifiedMetricsDashboard() {
     }
   };
 
-  const generatePostTypeComparison = (posts: any[]) => {
+  const generatePostTypeComparison = (posts: Post[]): PostComparison[] => {
     const types = {
       reels: { engagement: 0, count: 0, reach: 0 },
       carousels: { engagement: 0, count: 0, reach: 0 },
       static: { engagement: 0, count: 0, reach: 0 },
     };
 
-    posts.forEach((post: any) => {
+    posts.forEach((post: Post) => {
       const type = post.type || "static";
-      const key = type.includes("video") || type.includes("reel") ? "reels" 
-                  : type.includes("carousel") ? "carousels" 
-                  : "static";
-      
+      const key =
+        type.includes("video") || type.includes("reel")
+          ? "reels"
+          : type.includes("carousel")
+            ? "carousels"
+            : "static";
+
       types[key as keyof typeof types].count++;
-      types[key as keyof typeof types].engagement += (post.metrics?.engagementRate || 0);
-      types[key as keyof typeof types].reach += (post.metrics?.reach || 0);
+      types[key as keyof typeof types].engagement +=
+        post.metrics?.engagementRate || 0;
+      types[key as keyof typeof types].reach += post.metrics?.reach || 0;
     });
 
     return Object.entries(types).map(([name, data]) => ({
       name: name.charAt(0).toUpperCase() + name.slice(1),
-      avgEngagement: data.count > 0 ? (data.engagement / data.count).toFixed(2) : 0,
+      engagement:
+        data.count > 0 ? (data.engagement / data.count).toFixed(2) : 0,
+      avgEngagement:
+        data.count > 0 ? (data.engagement / data.count).toFixed(2) : 0,
       count: data.count,
+      reach: data.reach,
       totalReach: data.reach,
     }));
   };
@@ -101,7 +183,9 @@ export function UnifiedMetricsDashboard() {
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
           <Zap className="h-8 w-8 animate-spin mx-auto mb-4 text-blue-500" />
-          <p className="text-muted-foreground">Loading your unified metrics...</p>
+          <p className="text-muted-foreground">
+            Loading your unified metrics...
+          </p>
         </div>
       </div>
     );
@@ -128,10 +212,17 @@ export function UnifiedMetricsDashboard() {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-4xl font-bold">Unified Metrics Dashboard</h1>
-          <p className="text-muted-foreground mt-1">All your social platforms in one view</p>
+          <p className="text-muted-foreground mt-1">
+            All your social platforms in one view
+          </p>
         </div>
         <div className="flex gap-2">
+          <label htmlFor="timeRange" className="sr-only">
+            Time Range
+          </label>
           <select
+            id="timeRange"
+            title="Select time range"
             value={timeRange}
             onChange={(e) => setTimeRange(e.target.value)}
             className="px-4 py-2 rounded-lg border bg-background"
@@ -199,7 +290,9 @@ export function UnifiedMetricsDashboard() {
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Bar Chart - Avg Engagement by Format */}
                 <div>
-                  <h3 className="text-sm font-semibold mb-4">Average Engagement Rate</h3>
+                  <h3 className="text-sm font-semibold mb-4">
+                    Average Engagement Rate
+                  </h3>
                   <ResponsiveContainer width="100%" height={300}>
                     <BarChart data={metrics?.postTypeComparison || []}>
                       <CartesianGrid strokeDasharray="3 3" />
@@ -215,19 +308,28 @@ export function UnifiedMetricsDashboard() {
                 <div className="space-y-4">
                   <h3 className="text-sm font-semibold">Detailed Breakdown</h3>
                   {metrics?.postTypeComparison.map((item, idx) => (
-                    <div key={idx} className="p-4 rounded-lg bg-slate-50 space-y-2">
+                    <div
+                      key={idx}
+                      className="p-4 rounded-lg bg-slate-50 space-y-2"
+                    >
                       <div className="flex justify-between items-center">
                         <span className="font-medium">{item.name}</span>
-                        <span className="text-xs bg-white px-2 py-1 rounded">{item.count} posts</span>
+                        <span className="text-xs bg-white px-2 py-1 rounded">
+                          {item.count} posts
+                        </span>
                       </div>
                       <div className="grid grid-cols-2 gap-2 text-sm">
                         <div>
-                          <p className="text-muted-foreground">Avg Engagement</p>
+                          <p className="text-muted-foreground">
+                            Avg Engagement
+                          </p>
                           <p className="font-bold">{item.avgEngagement}%</p>
                         </div>
                         <div>
                           <p className="text-muted-foreground">Total Reach</p>
-                          <p className="font-bold">{(item.totalReach / 1000).toFixed(1)}k</p>
+                          <p className="font-bold">
+                            {(item.totalReach / 1000).toFixed(1)}k
+                          </p>
                         </div>
                       </div>
                     </div>
@@ -254,39 +356,59 @@ export function UnifiedMetricsDashboard() {
                         cx="50%"
                         cy="50%"
                         labelLine={false}
-                        label={({ name, value }) => `${name}: ${value}`}
+                        label={({
+                          name,
+                          value,
+                        }: {
+                          name?: string;
+                          value?: number;
+                        }) => {
+                          if (!name || !value) return "";
+                          return `${name}: ${value}`;
+                        }}
                         outerRadius={100}
                         fill="#8884d8"
                         dataKey="followers"
                       >
-                        {metrics?.platformBreakdown.map((entry: any, index: number) => (
-                          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                        ))}
+                        {metrics?.platformBreakdown.map(
+                          (entry: PlatformData, index: number) => (
+                            <Cell
+                              key={`cell-${index}`}
+                              fill={COLORS[index % COLORS.length]}
+                            />
+                          ),
+                        )}
                       </Pie>
                       <Tooltip />
                     </PieChart>
                   </ResponsiveContainer>
                 </div>
                 <div className="space-y-3">
-                  {metrics?.platformBreakdown.map((platform: any, idx: number) => (
-                    <div
-                      key={idx}
-                      className="p-4 rounded-lg border flex justify-between items-center"
-                    >
-                      <div>
-                        <p className="font-medium capitalize">{platform.platform}</p>
-                        <p className="text-sm text-muted-foreground">
-                          {platform.followers?.toLocaleString()} followers
-                        </p>
+                  {metrics?.platformBreakdown.map(
+                    (platform: PlatformData, idx: number) => (
+                      <div
+                        key={idx}
+                        className="p-4 rounded-lg border flex justify-between items-center"
+                      >
+                        <div>
+                          <p className="font-medium capitalize">
+                            {platform.platform || platform.name || "Platform"}
+                          </p>
+                          <p className="text-sm text-muted-foreground">
+                            {platform.followers?.toLocaleString()} followers
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-bold text-green-600">
+                            {platform.engagement?.toFixed(2) || "0"}%
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            Engagement
+                          </p>
+                        </div>
                       </div>
-                      <div className="text-right">
-                        <p className="font-bold text-green-600">
-                          {platform.engagement?.toFixed(2)}%
-                        </p>
-                        <p className="text-xs text-muted-foreground">Engagement</p>
-                      </div>
-                    </div>
-                  ))}
+                    ),
+                  )}
                 </div>
               </div>
             </CardContent>
@@ -350,24 +472,39 @@ export function UnifiedMetricsDashboard() {
                   <div className="space-y-4">
                     <div>
                       <p className="text-sm text-muted-foreground">Posted on</p>
-                      <p className="font-semibold capitalize">{metrics.topPost.platform}</p>
+                      <p className="font-semibold capitalize">
+                        {metrics.topPost.platform || "Social Media"}
+                      </p>
                     </div>
-                    <p className="text-base">{metrics.topPost.content}</p>
+                    <p className="text-base">
+                      {metrics.topPost.content ||
+                        "No content available for this post"}
+                    </p>
                     <div className="grid grid-cols-4 gap-4">
                       <div className="p-3 rounded-lg bg-slate-50">
                         <p className="text-xs text-muted-foreground">Likes</p>
-                        <p className="text-lg font-bold">{metrics.topPost.metrics?.likes || 0}</p>
+                        <p className="text-lg font-bold">
+                          {metrics.topPost.metrics?.likes || 0}
+                        </p>
                       </div>
                       <div className="p-3 rounded-lg bg-slate-50">
-                        <p className="text-xs text-muted-foreground">Comments</p>
-                        <p className="text-lg font-bold">{metrics.topPost.metrics?.comments || 0}</p>
+                        <p className="text-xs text-muted-foreground">
+                          Comments
+                        </p>
+                        <p className="text-lg font-bold">
+                          {metrics.topPost.metrics?.comments || 0}
+                        </p>
                       </div>
                       <div className="p-3 rounded-lg bg-slate-50">
                         <p className="text-xs text-muted-foreground">Shares</p>
-                        <p className="text-lg font-bold">{metrics.topPost.metrics?.shares || 0}</p>
+                        <p className="text-lg font-bold">
+                          {metrics.topPost.metrics?.shares || 0}
+                        </p>
                       </div>
                       <div className="p-3 rounded-lg bg-slate-50">
-                        <p className="text-xs text-muted-foreground">Engagement</p>
+                        <p className="text-xs text-muted-foreground">
+                          Engagement
+                        </p>
                         <p className="text-lg font-bold">
                           {metrics.topPost.metrics?.engagementRate?.toFixed(2)}%
                         </p>
@@ -399,7 +536,9 @@ function MetricCard({ title, value, icon, color }: MetricCardProps) {
       <CardContent className={`pt-6 ${color}`}>
         <div className="flex items-start justify-between">
           <div>
-            <p className="text-xs font-medium text-muted-foreground uppercase">{title}</p>
+            <p className="text-xs font-medium text-muted-foreground uppercase">
+              {title}
+            </p>
             <p className="text-2xl font-bold mt-2">
               {typeof value === "number" ? value.toLocaleString() : value}
             </p>

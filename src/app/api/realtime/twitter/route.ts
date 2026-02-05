@@ -27,7 +27,7 @@ export async function GET(req: NextRequest) {
 
   const stream = new ReadableStream({
     async start(controller) {
-      let closed = false;
+      const closed = false;
 
       // Helper to push an event
       function pushEvent(eventName: string, data: any) {
@@ -44,7 +44,7 @@ export async function GET(req: NextRequest) {
       controller.enqueue(new TextEncoder().encode(": connected\n\n"));
 
       // Real-time polling from Twitter RapidAPI
-      let lastSeen = new Set<string>();
+      const lastSeen = new Set<string>();
 
       const pollFn = async () => {
         try {

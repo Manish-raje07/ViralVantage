@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
 
     // Get analytics context from database or sample data
     const postsCollection = await getCollection<SocialPost>(COLLECTIONS.POSTS);
-    let posts = await postsCollection
+    const posts = await postsCollection
       .find({})
       .sort({ publishedAt: -1 })
       .limit(50)

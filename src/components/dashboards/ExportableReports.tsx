@@ -19,7 +19,8 @@ const AVAILABLE_REPORTS: Report[] = [
   {
     id: "performance",
     name: "Overall Performance Report",
-    description: "Complete overview of engagement, reach, and follower growth across all platforms",
+    description:
+      "Complete overview of engagement, reach, and follower growth across all platforms",
     format: "PDF",
     period: "Weekly, Monthly, Quarterly",
     metrics: [
@@ -33,7 +34,8 @@ const AVAILABLE_REPORTS: Report[] = [
   {
     id: "content-analysis",
     name: "Content Analysis Report",
-    description: "Detailed breakdown of content performance by type, format, and platform",
+    description:
+      "Detailed breakdown of content performance by type, format, and platform",
     format: "PDF",
     period: "Monthly",
     metrics: [
@@ -61,7 +63,8 @@ const AVAILABLE_REPORTS: Report[] = [
   {
     id: "competitor",
     name: "Competitor Comparison Report",
-    description: "Compare your performance against competitors in your industry",
+    description:
+      "Compare your performance against competitors in your industry",
     format: "PDF",
     period: "Monthly",
     metrics: [
@@ -74,7 +77,8 @@ const AVAILABLE_REPORTS: Report[] = [
   {
     id: "roi",
     name: "ROI & Sales Impact Report",
-    description: "Track how social media drives business results and conversions",
+    description:
+      "Track how social media drives business results and conversions",
     format: "PDF",
     period: "Monthly, Quarterly",
     metrics: [
@@ -89,7 +93,9 @@ const AVAILABLE_REPORTS: Report[] = [
 
 export function ExportableReports() {
   const [selectedReports, setSelectedReports] = useState<string[]>([]);
-  const [exportFormat, setExportFormat] = useState<"PDF" | "CSV" | "JSON">("PDF");
+  const [exportFormat, setExportFormat] = useState<"PDF" | "CSV" | "JSON">(
+    "PDF",
+  );
   const [timePeriod, setTimePeriod] = useState("monthly");
   const [isExporting, setIsExporting] = useState(false);
   const [exportStatus, setExportStatus] = useState<string | null>(null);
@@ -98,7 +104,7 @@ export function ExportableReports() {
     setSelectedReports((prev) =>
       prev.includes(reportId)
         ? prev.filter((id) => id !== reportId)
-        : [...prev, reportId]
+        : [...prev, reportId],
     );
   };
 
@@ -141,7 +147,7 @@ export function ExportableReports() {
       setTimeout(() => setExportStatus(null), 3000);
     } catch (error) {
       setExportStatus(
-        error instanceof Error ? error.message : "Failed to export report"
+        error instanceof Error ? error.message : "Failed to export report",
       );
     } finally {
       setIsExporting(false);
@@ -161,8 +167,12 @@ export function ExportableReports() {
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="text-sm font-medium">Time Period</label>
+              <label htmlFor="timePeriod" className="text-sm font-medium">
+                Time Period
+              </label>
               <select
+                id="timePeriod"
+                title="Select time period for report"
                 value={timePeriod}
                 onChange={(e) => setTimePeriod(e.target.value)}
                 className="w-full mt-2 px-3 py-2 rounded-lg border bg-background"
@@ -174,10 +184,16 @@ export function ExportableReports() {
               </select>
             </div>
             <div>
-              <label className="text-sm font-medium">Format</label>
+              <label htmlFor="exportFormat" className="text-sm font-medium">
+                Format
+              </label>
               <select
+                id="exportFormat"
+                title="Select export format"
                 value={exportFormat}
-                onChange={(e) => setExportFormat(e.target.value as any)}
+                onChange={(e) =>
+                  setExportFormat(e.target.value as "PDF" | "CSV" | "JSON")
+                }
                 className="w-full mt-2 px-3 py-2 rounded-lg border bg-background"
               >
                 <option value="PDF">PDF (Formatted Report)</option>
@@ -188,11 +204,13 @@ export function ExportableReports() {
           </div>
 
           {exportStatus && (
-            <div className={`p-3 rounded-lg text-sm ${
-              exportStatus.includes("successfully")
-                ? "bg-green-50 text-green-700"
-                : "bg-yellow-50 text-yellow-700"
-            }`}>
+            <div
+              className={`p-3 rounded-lg text-sm ${
+                exportStatus.includes("successfully")
+                  ? "bg-green-50 text-green-700"
+                  : "bg-yellow-50 text-yellow-700"
+              }`}
+            >
               {exportStatus}
             </div>
           )}
@@ -230,7 +248,11 @@ export function ExportableReports() {
             >
               <CardContent className="pt-6">
                 <div className="flex items-start gap-4">
+                  <label htmlFor={`report-${report.id}`} className="sr-only">
+                    Select {report.name} report
+                  </label>
                   <input
+                    id={`report-${report.id}`}
                     type="checkbox"
                     checked={selectedReports.includes(report.id)}
                     onChange={() => toggleReport(report.id)}
@@ -249,7 +271,11 @@ export function ExportableReports() {
                     </p>
                     <div className="flex flex-wrap gap-2">
                       {report.metrics.map((metric) => (
-                        <Badge key={metric} variant="secondary" className="text-xs">
+                        <Badge
+                          key={metric}
+                          variant="secondary"
+                          className="text-xs"
+                        >
                           {metric}
                         </Badge>
                       ))}
@@ -285,7 +311,8 @@ export function ExportableReports() {
               })}
             </ul>
             <p className="text-xs text-muted-foreground mt-4">
-              Your report will include data from the selected time period and be exported as {exportFormat}.
+              Your report will include data from the selected time period and be
+              exported as {exportFormat}.
             </p>
           </CardContent>
         </Card>

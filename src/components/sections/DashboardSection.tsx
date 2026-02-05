@@ -134,7 +134,7 @@ function getGrowthColor(rate: number): string {
 }
 
 export function DashboardSection() {
-  /* eslint-disable @typescript-eslint/no-unused-vars */
+   
   const { data: stats, isLoading: statsLoading } = useDashboardStats();
   const { data: platforms, isLoading: platformsLoading } = usePlatformMetrics();
   const { data: recentPosts, isLoading: postsLoading } = useRecentPosts();

@@ -1,10 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Sparkles, TrendingUp, AlertCircle, CheckCircle, Zap } from "lucide-react";
+import { Sparkles, AlertCircle, CheckCircle, Zap } from "lucide-react";
 
 interface Insight {
   id: string;
@@ -46,53 +46,69 @@ export function InsightsAndRecommendations() {
     }
   };
 
-  const generateInsights = (data: any): Insight[] => {
+  const generateInsights = (data: Record<string, unknown>): Insight[] => {
     const insights: Insight[] = [];
 
+    // Safely cast and check data
+    const avgEngagement = data.avgEngagement as number | undefined;
+    const totalPosts = data.totalPosts as number | undefined;
+    const bestContent = data.bestContent as
+      | {
+          type?: string;
+          engagement?: number;
+        }
+      | undefined;
+    const slowGrowth = data.slowGrowth as boolean | undefined;
+
     // Analyze engagement trends
-    if (data.avgEngagement && data.avgEngagement > 5) {
+    if (avgEngagement && avgEngagement > 5) {
       insights.push({
         id: "1",
         title: "Strong Engagement Performance",
-        description: `Your posts are averaging ${data.avgEngagement.toFixed(2)}% engagement rate, which is above industry standard.`,
+        description: `Your posts are averaging ${avgEngagement.toFixed(2)}% engagement rate, which is above industry standard.`,
         type: "success",
-        recommendation: "Continue with current content strategy. Consider scaling up posting frequency.",
+        recommendation:
+          "Continue with current content strategy. Consider scaling up posting frequency.",
         impact: "high",
       });
     }
 
     // Post frequency analysis
-    if (data.totalPosts && data.totalPosts < 4) {
+    if (totalPosts && totalPosts < 4) {
       insights.push({
         id: "2",
         title: "Increase Posting Frequency",
-        description: "You're posting less than 1 post per week. Consistency drives engagement.",
+        description:
+          "You're posting less than 1 post per week. Consistency drives engagement.",
         type: "opportunity",
-        recommendation: "Aim for at least 3-4 posts per week to maintain audience connection.",
+        recommendation:
+          "Aim for at least 3-4 posts per week to maintain audience connection.",
         impact: "medium",
       });
     }
 
     // Best performing content
-    if (data.bestContent) {
+    if (bestContent && bestContent.type && bestContent.engagement) {
       insights.push({
         id: "3",
-        title: `${data.bestContent.type} Content Performs Best`,
-        description: `Your ${data.bestContent.type} posts get ${data.bestContent.engagement}% more engagement on average.`,
+        title: `${bestContent.type} Content Performs Best`,
+        description: `Your ${bestContent.type} posts get ${bestContent.engagement}% more engagement on average.`,
         type: "tip",
-        recommendation: `Allocate more resources to creating ${data.bestContent.type} content.`,
+        recommendation: `Allocate more resources to creating ${bestContent.type} content.`,
         impact: "high",
       });
     }
 
     // Growth opportunity
-    if (data.slowGrowth) {
+    if (slowGrowth) {
       insights.push({
         id: "4",
         title: "Follower Growth Slowing",
-        description: "Your follower growth rate has decreased by 15% this month.",
+        description:
+          "Your follower growth rate has decreased by 15% this month.",
         type: "warning",
-        recommendation: "Engage more with your audience through comments and DMs. Try new content formats.",
+        recommendation:
+          "Engage more with your audience through comments and DMs. Try new content formats.",
         impact: "medium",
       });
     }
@@ -104,15 +120,18 @@ export function InsightsAndRecommendations() {
     {
       id: "1",
       title: "Connect Your Accounts",
-      description: "Start tracking insights by connecting your social media accounts.",
+      description:
+        "Start tracking insights by connecting your social media accounts.",
       type: "opportunity",
-      recommendation: "Connect Twitter, Instagram, YouTube to get personalized recommendations.",
+      recommendation:
+        "Connect Twitter, Instagram, YouTube to get personalized recommendations.",
       impact: "high",
     },
     {
       id: "2",
       title: "Enable Real-Time Monitoring",
-      description: "Get instant notifications about post performance and audience engagement.",
+      description:
+        "Get instant notifications about post performance and audience engagement.",
       type: "tip",
       recommendation: "Set up real-time monitoring to catch trending moments.",
       impact: "medium",
@@ -120,9 +139,11 @@ export function InsightsAndRecommendations() {
     {
       id: "3",
       title: "Use Data-Driven Insights",
-      description: "AI will analyze your content and suggest what works best for your audience.",
+      description:
+        "AI will analyze your content and suggest what works best for your audience.",
       type: "success",
-      recommendation: "Ask questions about your performance to get personalized recommendations.",
+      recommendation:
+        "Ask questions about your performance to get personalized recommendations.",
       impact: "high",
     },
   ];
@@ -190,25 +211,38 @@ export function InsightsAndRecommendations() {
 
       <div className="grid gap-4">
         {insights.map((insight) => (
-          <Card key={insight.id} className={`border ${getTypeColor(insight.type)}`}>
+          <Card
+            key={insight.id}
+            className={`border ${getTypeColor(insight.type)}`}
+          >
             <CardContent className="pt-6 space-y-4">
               <div className="flex items-start gap-3">
-                <div className="flex-shrink-0">{getIconForType(insight.type)}</div>
+                <div className="flex-shrink-0">
+                  {getIconForType(insight.type)}
+                </div>
                 <div className="flex-1">
                   <div className="flex items-start justify-between mb-1">
                     <h3 className="font-semibold">{insight.title}</h3>
-                    <Badge
-                      variant="secondary"
-                      className="ml-2"
-                    >
-                      {insight.impact === "high" ? "🔴 High" : insight.impact === "medium" ? "🟡 Medium" : "🟢 Low"} Impact
+                    <Badge variant="secondary" className="ml-2">
+                      {insight.impact === "high"
+                        ? "🔴 High"
+                        : insight.impact === "medium"
+                          ? "🟡 Medium"
+                          : "🟢 Low"}{" "}
+                      Impact
                     </Badge>
                   </div>
-                  <p className="text-sm text-slate-700 mb-3">{insight.description}</p>
+                  <p className="text-sm text-slate-700 mb-3">
+                    {insight.description}
+                  </p>
 
                   <div className="p-3 rounded bg-white bg-opacity-60 border border-current border-opacity-10">
-                    <p className="text-xs font-semibold text-slate-600 mb-1">Recommended Action:</p>
-                    <p className="text-sm text-slate-700">{insight.recommendation}</p>
+                    <p className="text-xs font-semibold text-slate-600 mb-1">
+                      Recommended Action:
+                    </p>
+                    <p className="text-sm text-slate-700">
+                      {insight.recommendation}
+                    </p>
                   </div>
                 </div>
               </div>
