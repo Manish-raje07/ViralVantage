@@ -13,45 +13,45 @@ const breakpoints: Record<BreakpointKey, number> = {
   '2xl': 1536,
 };
 
+function getBreakpointFromWidth(width: number): BreakpointKey {
+  if (width >= breakpoints['2xl']) return '2xl';
+  if (width >= breakpoints.xl) return 'xl';
+  if (width >= breakpoints.lg) return 'lg';
+  if (width >= breakpoints.md) return 'md';
+  if (width >= breakpoints.sm) return 'sm';
+  return 'xs';
+}
+
 export function useResponsive() {
+  // Safe defaults for SSR - assume desktop
   const [screenSize, setScreenSize] = useState<BreakpointKey>('lg');
   const [windowSize, setWindowSize] = useState({
-    width: typeof window !== 'undefined' ? window.innerWidth : 1024,
-    height: typeof window !== 'undefined' ? window.innerHeight : 768,
+    width: 1024,
+    height: 768,
   });
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
+    
     const handleResize = () => {
       const width = window.innerWidth;
-      setWindowSize({
-        width,
-        height: window.innerHeight,
-      });
-
-      // Determine current breakpoint
-      if (width >= breakpoints['2xl']) {
-        setScreenSize('2xl');
-      } else if (width >= breakpoints.xl) {
-        setScreenSize('xl');
-      } else if (width >= breakpoints.lg) {
-        setScreenSize('lg');
-      } else if (width >= breakpoints.md) {
-        setScreenSize('md');
-      } else if (width >= breakpoints.sm) {
-        setScreenSize('sm');
-      } else {
-        setScreenSize('xs');
-      }
+      const height = window.innerHeight;
+      
+      setWindowSize({ width, height });
+      setScreenSize(getBreakpointFromWidth(width));
     };
 
+    // Initial call to set correct values
     handleResize();
+    
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const isMobile = screenSize === 'xs' || screenSize === 'sm';
-  const isTablet = screenSize === 'md';
-  const isDesktop = screenSize === 'lg' || screenSize === 'xl' || screenSize === '2xl';
+  const isMobile = mounted ? (screenSize === 'xs' || screenSize === 'sm') : false;
+  const isTablet = mounted ? screenSize === 'md' : false;
+  const isDesktop = mounted ? (screenSize === 'lg' || screenSize === 'xl' || screenSize === '2xl') : true;
 
   return {
     screenSize,
@@ -60,5 +60,7 @@ export function useResponsive() {
     isTablet,
     isDesktop,
     breakpoints,
+    mounted,
   };
 }
+

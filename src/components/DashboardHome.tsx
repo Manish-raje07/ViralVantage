@@ -9,11 +9,23 @@ import { CampaignsSection } from "./sections/CampaignsSection";
 import { CustomersSection } from "./sections/CustomersSection";
 import { UsersSection } from "./sections/UsersSection";
 import { SettingsSection } from "./sections/SettingsSection";
+import { AIQuerySection } from "./sections/AIQuerySection";
+import { CompareSection } from "./sections/CompareSection";
+import { InsightsSection } from "./sections/InsightsSection";
+import { ReportsSection } from "./sections/ReportsSection";
 
 export function DashboardHome({ section }: { section: string }) {
   switch (section) {
     case "overview":
       return <OverviewSection />;
+    case "ai-query":
+      return <AIQuerySection />;
+    case "compare":
+      return <CompareSection />;
+    case "insights":
+      return <InsightsSection />;
+    case "reports":
+      return <ReportsSection />;
     case "posts":
       return <PostsSection />;
     case "analytics":

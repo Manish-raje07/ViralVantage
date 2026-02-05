@@ -1,12 +1,16 @@
 "use client";
 
-import { Home, Calendar, BarChart2, Users, MessageCircle, Settings, UserCheck, Target, X, Eye } from "lucide-react";
+import { Home, Calendar, BarChart2, Users, MessageCircle, Settings, UserCheck, Target, X, Eye, Sparkles, GitCompare, Lightbulb, FileText } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
 const navItems = [
   { key: "dashboard", label: "Dashboard", icon: Home },
   { key: "overview", label: "Overview", icon: Eye },
+  { key: "ai-query", label: "AI Assistant", icon: Sparkles },
+  { key: "compare", label: "Compare", icon: GitCompare },
+  { key: "insights", label: "Insights", icon: Lightbulb },
+  { key: "reports", label: "Reports", icon: FileText },
   { key: "posts", label: "Posts", icon: Calendar },
   { key: "analytics", label: "Analytics", icon: BarChart2 },
   { key: "engagement", label: "Engagement", icon: MessageCircle },
