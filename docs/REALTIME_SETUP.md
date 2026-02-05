@@ -11,6 +11,7 @@ The project now uses only **real API data** from social platforms. Demo data gen
 ### 1. Twitter API v2 (Real-Time Posts)
 
 #### Prerequisites
+
 - Twitter Developer Account with API access
 - Elevated access tier (for streaming endpoints)
 
@@ -21,6 +22,7 @@ The project now uses only **real API data** from social platforms. Demo data gen
    - User ID (your account ID)
 
 2. Add to `.env.local`:
+
 ```env
 TWITTER_BEARER_TOKEN=your_bearer_token_here
 TWITTER_USER_ID=your_user_id_here
@@ -32,6 +34,7 @@ TWITTER_USER_ID=your_user_id_here
    - Refresh rate: 5 seconds
 
 #### Client Hook Usage
+
 ```typescript
 import { useTwitterRealtime } from '@/hooks/useTwitterRealtime';
 
@@ -53,6 +56,7 @@ export function MyComponent() {
 ### 2. Instagram API (Business Account)
 
 #### Prerequisites
+
 - Instagram Business Account
 - Facebook App with Instagram Graph API access
 
@@ -63,6 +67,7 @@ export function MyComponent() {
    - Business Account ID
 
 2. Add to `.env.local`:
+
 ```env
 INSTAGRAM_ACCESS_TOKEN=your_access_token_here
 INSTAGRAM_BUSINESS_ACCOUNT_ID=your_account_id_here
@@ -76,17 +81,20 @@ INSTAGRAM_BUSINESS_ACCOUNT_ID=your_account_id_here
 ### 3. MongoDB (Data Persistence)
 
 Store fetched data in MongoDB collections for:
+
 - Historical analytics
 - Trend analysis
 - Caching to reduce API calls
 
 #### Collections
+
 - `platforms` - Account metrics per platform
 - `posts` - Individual post data
 - `dailyMetrics` - Aggregated daily stats
 - `insights` - AI-generated insights
 
 #### Connection
+
 ```env
 MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/social-media-dashboard
 ```
@@ -104,19 +112,25 @@ See `src/lib/gemini.ts` for integration.
 ## API Routes
 
 ### Analytics (`/api/analytics`)
+
 Fetches real platform metrics from MongoDB:
+
 ```bash
 GET /api/analytics?platform=twitter&period=30&type=overview
 ```
 
 ### Real-Time Twitter (`/api/realtime/twitter`)
+
 Server-Sent Events stream of new tweets:
+
 ```bash
 GET /api/realtime/twitter?userId=xxx&bearerToken=yyy
 ```
 
 ### Insights (`/api/insights`)
+
 AI-powered insights from real data:
+
 ```bash
 GET /api/insights
 ```
@@ -134,24 +148,31 @@ The following components now fetch real data:
 ## Testing Real Data
 
 ### 1. Start Dev Server
+
 ```bash
 npm run dev
 ```
 
 ### 2. Configure Environment
+
 Copy `.env.example` to `.env.local` and fill in real credentials:
+
 ```bash
 cp .env.example .env.local
 ```
 
 ### 3. Seed Initial Data
+
 Run the seed script to populate MongoDB:
+
 ```bash
 npx ts-node scripts/seed-data.ts
 ```
 
 ### 4. Test Real-Time Endpoint
+
 Open in browser or curl:
+
 ```bash
 curl "http://localhost:3000/api/realtime/twitter?userId=xxx&bearerToken=yyy"
 ```
@@ -161,17 +182,20 @@ You should see SSE events with real tweets.
 ## Limitations & Notes
 
 ### Rate Limits
+
 - Twitter API: 300 requests/15 minutes
 - Instagram: 200 requests/hour
 - Implement caching to stay within limits
 
 ### Streaming Limitations
+
 - Basic polling (5s interval) used instead of native streaming
 - For true streaming, use:
   - Twitter API v2 Streaming endpoints (requires elevated access)
   - Instagram Webhooks (for real-time notifications)
 
 ### Demo Mode Removed
+
 - `generateSampleTwitterData()` removed from `twitter.ts`
 - `generateSampleInstagramData()` removed from `instagram.ts`
 - Hook `useTwitterRealtime` now requires credentials (no demo mode)
@@ -188,14 +212,17 @@ You should see SSE events with real tweets.
 ## Troubleshooting
 
 ### "Missing credentials" error
+
 Ensure `TWITTER_BEARER_TOKEN` and `TWITTER_USER_ID` are set in `.env.local`
 
 ### No data appearing
+
 1. Check MongoDB connection in `MONGODB_URI`
 2. Run seed script to populate data
 3. Verify API credentials have proper permissions
 
 ### Rate limit errors
+
 - Add caching layer (Redis)
 - Increase polling interval beyond 5 seconds
 - Use webhook endpoints instead of polling
@@ -203,6 +230,7 @@ Ensure `TWITTER_BEARER_TOKEN` and `TWITTER_USER_ID` are set in `.env.local`
 ## Support
 
 For API documentation:
+
 - [Twitter API v2 Docs](https://developer.twitter.com/en/docs/twitter-api)
 - [Instagram Graph API Docs](https://developers.facebook.com/docs/instagram-graph-api)
 - [MongoDB Node Driver](https://www.mongodb.com/docs/drivers/node/)

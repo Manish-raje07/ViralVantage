@@ -3,7 +3,18 @@
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, Edit, Trash2, Calendar, Eye, Heart, MessageCircle, Share, BarChart3, Clock } from "lucide-react";
+import {
+  Plus,
+  Edit,
+  Trash2,
+  Calendar,
+  Eye,
+  Heart,
+  MessageCircle,
+  Share,
+  BarChart3,
+  Clock,
+} from "lucide-react";
 
 type Post = {
   id: string;
@@ -31,17 +42,17 @@ export function PostsSection() {
     const fetchPosts = async () => {
       try {
         setLoading(true);
-        const response = await fetch('/api/analytics?type=posts');
-        if (!response.ok) throw new Error('Failed to fetch posts');
+        const response = await fetch("/api/analytics?type=posts");
+        if (!response.ok) throw new Error("Failed to fetch posts");
         const data = await response.json();
         // Transform API data to component format
         const transformedPosts = (data.data?.posts || []).map((p: any) => ({
           id: p.postId || p.id,
           content: p.content,
-          platforms: [p.platform || 'Twitter'],
+          platforms: [p.platform || "Twitter"],
           scheduledAt: p.publishedAt,
-          status: 'posted' as const,
-          mediaType: p.type || 'text',
+          status: "posted" as const,
+          mediaType: p.type || "text",
           engagement: {
             likes: p.metrics?.likes || 0,
             comments: p.metrics?.comments || 0,
@@ -52,7 +63,7 @@ export function PostsSection() {
         }));
         setPosts(transformedPosts);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Error loading posts');
+        setError(err instanceof Error ? err.message : "Error loading posts");
         setPosts([]);
       } finally {
         setLoading(false);
@@ -80,17 +91,21 @@ export function PostsSection() {
 
   const getMediaTypeIcon = (type: string) => {
     switch (type) {
-      case "video": return "🎥";
-      case "image": return "📷";
-      case "carousel": return "🖼️";
-      default: return "📝";
+      case "video":
+        return "🎥";
+      case "image":
+        return "📷";
+      case "carousel":
+        return "🖼️";
+      default:
+        return "📝";
     }
   };
 
   const totalPosts = posts.length;
-  const scheduledPosts = posts.filter(p => p.status === "scheduled").length;
-  const postedPosts = posts.filter(p => p.status === "posted").length;
-  const draftPosts = posts.filter(p => p.status === "draft").length;
+  const scheduledPosts = posts.filter((p) => p.status === "scheduled").length;
+  const postedPosts = posts.filter((p) => p.status === "posted").length;
+  const draftPosts = posts.filter((p) => p.status === "draft").length;
 
   if (error) {
     return (
@@ -166,14 +181,20 @@ export function PostsSection() {
             <CardHeader>
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div className="flex items-center gap-3">
-                  <span className="text-2xl">{getMediaTypeIcon(post.mediaType)}</span>
+                  <span className="text-2xl">
+                    {getMediaTypeIcon(post.mediaType)}
+                  </span>
                   <div>
                     <div className="flex items-center gap-2">
                       <Calendar className="h-4 w-4 text-muted-foreground" />
-                      <span className="font-medium">{new Date(post.scheduledAt).toLocaleString()}</span>
+                      <span className="font-medium">
+                        {new Date(post.scheduledAt).toLocaleString()}
+                      </span>
                     </div>
                     {post.campaign && (
-                      <p className="text-xs text-muted-foreground">Campaign: {post.campaign}</p>
+                      <p className="text-xs text-muted-foreground">
+                        Campaign: {post.campaign}
+                      </p>
                     )}
                   </div>
                 </div>
@@ -183,10 +204,10 @@ export function PostsSection() {
                       post.status === "scheduled"
                         ? "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
                         : post.status === "posted"
-                        ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-                        : post.status === "failed"
-                        ? "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
-                        : "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200"
+                          ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+                          : post.status === "failed"
+                            ? "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
+                            : "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200"
                     }`}
                   >
                     {post.status.charAt(0).toUpperCase() + post.status.slice(1)}
@@ -199,7 +220,6 @@ export function PostsSection() {
               <div className="p-4 bg-muted/50 rounded-lg">
                 <p className="text-sm line-clamp-3">{post.content}</p>
               </div>
-
               {/* Platforms & Tags */}
               <div className="flex flex-col sm:flex-row gap-4">
                 <div className="flex-1">
@@ -230,7 +250,6 @@ export function PostsSection() {
                   </div>
                 </div>
               </div>
-
               {/* Engagement Stats (for posted content) */}
               {post.engagement && (
                 <div className="border-t pt-4">
@@ -238,29 +257,37 @@ export function PostsSection() {
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                     <div className="flex items-center gap-2 text-sm">
                       <Heart className="h-4 w-4 text-red-500" />
-                      <span className="font-medium">{post.engagement.likes.toLocaleString()}</span>
+                      <span className="font-medium">
+                        {post.engagement.likes.toLocaleString()}
+                      </span>
                       <span className="text-muted-foreground">likes</span>
                     </div>
                     <div className="flex items-center gap-2 text-sm">
                       <MessageCircle className="h-4 w-4 text-blue-500" />
-                      <span className="font-medium">{post.engagement.comments.toLocaleString()}</span>
+                      <span className="font-medium">
+                        {post.engagement.comments.toLocaleString()}
+                      </span>
                       <span className="text-muted-foreground">comments</span>
                     </div>
                     <div className="flex items-center gap-2 text-sm">
                       <Share className="h-4 w-4 text-green-500" />
-                      <span className="font-medium">{post.engagement.shares.toLocaleString()}</span>
+                      <span className="font-medium">
+                        {post.engagement.shares.toLocaleString()}
+                      </span>
                       <span className="text-muted-foreground">shares</span>
                     </div>
                     <div className="flex items-center gap-2 text-sm">
                       <Eye className="h-4 w-4 text-purple-500" />
-                      <span className="font-medium">{post.engagement.views.toLocaleString()}</span>
+                      <span className="font-medium">
+                        {post.engagement.views.toLocaleString()}
+                      </span>
                       <span className="text-muted-foreground">views</span>
                     </div>
                   </div>
                 </div>
               )}
-
-              {/* Actions */}              <div className="flex justify-end gap-2 pt-4 border-t">
+              {/* Actions */}{" "}
+              <div className="flex justify-end gap-2 pt-4 border-t">
                 <Button variant="outline" size="sm" onClick={handleEdit}>
                   <Edit className="mr-2 h-4 w-4" />
                   Edit

@@ -1,12 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { useDashboardStats, usePlatformMetrics, useRefreshData, useRecentPosts } from "@/hooks/useDashboardData";
+import { useDashboardStats, usePlatformMetrics, useRefreshData, useRecentPosts, useClearData } from "@/hooks/useDashboardData";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Bar, Doughnut, Line } from "react-chartjs-2";
 import { Chart, CategoryScale, LinearScale, BarElement, ArcElement, PointElement, LineElement, Tooltip, Legend, Filler } from "chart.js";
-import { TrendingUp, TrendingDown, Users, Eye, MessageCircle, Heart, DollarSign, Target, RefreshCw, Loader2, CheckCircle, Instagram, Youtube, Linkedin, Facebook, Twitter } from "lucide-react";
+import { TrendingUp, TrendingDown, Users, Eye, MessageCircle, Heart, DollarSign, Target, RefreshCw, Loader2, CheckCircle, Instagram, Youtube, Linkedin, Facebook, Twitter, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
@@ -93,6 +93,7 @@ export function DashboardSection() {
   const { data: platforms, isLoading: platformsLoading } = usePlatformMetrics();
   const { data: recentPosts, isLoading: postsLoading } = useRecentPosts();
   const refreshMutation = useRefreshData();
+  const clearMutation = useClearData();
   const [period, setPeriod] = useState('30');
 
   const loading = statsLoading || platformsLoading || postsLoading;
@@ -100,6 +101,13 @@ export function DashboardSection() {
 
   const handleRefresh = () => {
     refreshMutation.mutate();
+    // Assuming UI will update automatically via query invalidation
+  };
+
+  const handleClear = () => {
+    if (confirm('Are you sure you want to clear all data?')) {
+      clearMutation.mutate();
+    }
   };
 
   // Construct data object from multiple sources to match existing UI structure as closely as possible
@@ -215,6 +223,10 @@ export function DashboardSection() {
           <span className="text-xs text-muted-foreground">
             Last updated: {data.lastUpdated ? new Date(data.lastUpdated).toLocaleTimeString() : 'Just now'}
           </span>
+          <Button size="sm" variant="ghost" onClick={handleClear} disabled={clearMutation.isPending} className="text-red-500 hover:text-red-600 hover:bg-red-50">
+            <Trash2 className="h-4 w-4 mr-1" />
+            Clear Data
+          </Button>
           <Button size="sm" variant="ghost" onClick={handleRefresh} disabled={refreshMutation.isPending}>
             <RefreshCw className={`h-4 w-4 ${refreshMutation.isPending ? 'animate-spin' : ''}`} />
           </Button>
