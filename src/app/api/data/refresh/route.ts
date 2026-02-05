@@ -120,7 +120,12 @@ export async function POST() {
         return NextResponse.json({
             message: 'Refresh complete',
             platformsUpdated: platformsData.length,
-            postsFetched: allPosts.length
+            postsFetched: allPosts.length,
+            skipped: {
+                youtube: !youtubeKey,
+                twitter: !twitterToken || !twitterUserId,
+                instagram: !metaToken || !metaUserId
+            }
         });
 
     } catch (error) {

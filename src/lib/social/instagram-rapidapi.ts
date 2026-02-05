@@ -3,8 +3,8 @@
 
 import { SocialPost, PostMetrics, Platform } from "@/types";
 
-const RAPIDAPI_KEY = process.env.RAPIDAPI_KEY;
-const RAPIDAPI_HOST = process.env.RAPIDAPI_HOST;
+const X_RAPIDAPI_KEY = process.env.X_RAPIDAPI_KEY;
+const X_RAPIDAPI_HOST = process.env.X_RAPIDAPI_HOST;
 
 interface InstagramPost {
   id: string;
@@ -30,16 +30,16 @@ export async function getInstagramPosts(
   limit: number = 25,
 ): Promise<SocialPost[]> {
   try {
-    if (!RAPIDAPI_KEY || !RAPIDAPI_HOST) {
+    if (!X_RAPIDAPI_KEY || !X_RAPIDAPI_HOST) {
       throw new Error("Missing RapidAPI credentials");
     }
 
-    const url = `https://${RAPIDAPI_HOST}/ig/posts?ig_username=${instagramUserId}&count=${limit}`;
+    const url = `https://${X_RAPIDAPI_HOST}/ig/posts?ig_username=${instagramUserId}&count=${limit}`;
 
     const response = await fetch(url, {
       headers: {
-        "x-rapidapi-key": RAPIDAPI_KEY,
-        "x-rapidapi-host": RAPIDAPI_HOST,
+        "x-rapidapi-key": X_RAPIDAPI_KEY,
+        "x-rapidapi-host": X_RAPIDAPI_HOST,
       },
     });
 
@@ -68,16 +68,16 @@ export async function getInstagramProfile(instagramUserId: string): Promise<{
   profilePictureUrl: string;
 }> {
   try {
-    if (!RAPIDAPI_KEY || !RAPIDAPI_HOST) {
+    if (!X_RAPIDAPI_KEY || !X_RAPIDAPI_HOST) {
       throw new Error("Missing RapidAPI credentials");
     }
 
-    const url = `https://${RAPIDAPI_HOST}/ig/user_info?ig_username=${instagramUserId}`;
+    const url = `https://${X_RAPIDAPI_HOST}/ig/user_info?ig_username=${instagramUserId}`;
 
     const response = await fetch(url, {
       headers: {
-        "x-rapidapi-key": RAPIDAPI_KEY,
-        "x-rapidapi-host": RAPIDAPI_HOST,
+        "x-rapidapi-key": X_RAPIDAPI_KEY,
+        "x-rapidapi-host": X_RAPIDAPI_HOST,
       },
     });
 
@@ -172,16 +172,16 @@ export async function searchInstagramHashtag(hashtag: string): Promise<{
   postCount: number;
 }> {
   try {
-    if (!RAPIDAPI_KEY || !RAPIDAPI_HOST) {
+    if (!X_RAPIDAPI_KEY || !X_RAPIDAPI_HOST) {
       throw new Error("Missing RapidAPI credentials");
     }
 
-    const url = `https://${RAPIDAPI_HOST}/ig/hashtag_search?hashtag=${hashtag}`;
+    const url = `https://${X_RAPIDAPI_HOST}/ig/hashtag_search?hashtag=${hashtag}`;
 
     const response = await fetch(url, {
       headers: {
-        "x-rapidapi-key": RAPIDAPI_KEY,
-        "x-rapidapi-host": RAPIDAPI_HOST,
+        "x-rapidapi-key": X_RAPIDAPI_KEY,
+        "x-rapidapi-host": X_RAPIDAPI_HOST,
       },
     });
 

@@ -38,7 +38,7 @@ export function useRefreshData() {
 
     return useMutation({
         mutationFn: async () => {
-            const res = await fetch('/api/seed', { method: 'POST' });
+            const res = await fetch('/api/data/refresh', { method: 'POST' });
             if (!res.ok) throw new Error('Failed to refresh data');
             return res.json();
         },

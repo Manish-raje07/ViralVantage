@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { useDashboardStats, usePlatformMetrics, useRefreshData, useRecentPosts, useClearData } from "@/hooks/useDashboardData";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { AlertCircle } from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Bar, Doughnut, Line } from "react-chartjs-2";
@@ -95,13 +97,20 @@ export function DashboardSection() {
   const refreshMutation = useRefreshData();
   const clearMutation = useClearData();
   const [period, setPeriod] = useState('30');
+  const [missingKeys, setMissingKeys] = useState<string[]>([]);
 
   const loading = statsLoading || platformsLoading || postsLoading;
   const error = null; // simplified for now
 
   const handleRefresh = () => {
-    refreshMutation.mutate();
-    // Assuming UI will update automatically via query invalidation
+    refreshMutation.mutate(undefined, {
+      onSuccess: (data: any) => {
+        const missing = [];
+        if (data.skipped?.twitter) missing.push("Twitter");
+        if (data.skipped?.instagram) missing.push("Instagram");
+        setMissingKeys(missing);
+      }
+    });
   };
 
   const handleClear = () => {
@@ -232,6 +241,16 @@ export function DashboardSection() {
           </Button>
         </div>
       </div>
+
+      {missingKeys.length > 0 && (
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Missing API Keys</AlertTitle>
+          <AlertDescription>
+            Skipped updates for: {missingKeys.join(", ")}. Please add API keys to your .env.local file to enable these platforms.
+          </AlertDescription>
+        </Alert>
+      )}
 
       {/* Key Metrics */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
