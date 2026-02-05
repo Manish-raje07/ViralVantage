@@ -53,7 +53,7 @@ interface TwitterProfile {
  */
 export async function getUserTweets(
   username: string,
-  limit: number = 25
+  limit: number = 25,
 ): Promise<SocialPost[]> {
   try {
     if (!X_RAPIDAPI_KEY || !X_RAPIDAPI_HOST_TWITTER) {
@@ -86,9 +86,7 @@ export async function getUserTweets(
 /**
  * Get user profile via RapidAPI
  */
-export async function getUserProfile(
-  username: string
-): Promise<{
+export async function getUserProfile(username: string): Promise<{
   followers: number;
   following: number;
   tweetCount: number;
@@ -144,7 +142,7 @@ export async function getUserProfile(
  */
 export async function searchTweets(
   query: string,
-  limit: number = 25
+  limit: number = 25,
 ): Promise<SocialPost[]> {
   try {
     if (!X_RAPIDAPI_KEY || !X_RAPIDAPI_HOST_TWITTER) {

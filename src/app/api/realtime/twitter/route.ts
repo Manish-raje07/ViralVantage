@@ -1,22 +1,19 @@
 import { NextRequest } from "next/server";
-import { getUserTweets } from "@/lib/social/twitter";
+import { getUserTweets } from "@/lib/social/twitter-rapidapi";
 
 export const runtime = "nodejs";
 
-// Real-time Twitter streaming endpoint
-// Requires userId and bearerToken in query params or env vars
+// Real-time Twitter streaming endpoint via RapidAPI
+// Requires username in query params
 export async function GET(req: NextRequest) {
   const url = new URL(req.url);
-  const userId = url.searchParams.get("userId") || process.env.TWITTER_USER_ID;
-  const bearerToken =
-    url.searchParams.get("bearerToken") || process.env.TWITTER_BEARER_TOKEN;
+  const username = url.searchParams.get("username") || "twitter";
 
-  if (!userId || !bearerToken) {
+  if (!username) {
     return new Response(
       JSON.stringify({
-        error: "Missing credentials",
-        message:
-          "Provide userId and bearerToken as query params or set TWITTER_USER_ID and TWITTER_BEARER_TOKEN env vars",
+        error: "Missing username",
+        message: "Provide username as a query param (e.g., ?username=twitter)",
       }),
       { status: 400, headers: { "Content-Type": "application/json" } },
     );
@@ -46,12 +43,12 @@ export async function GET(req: NextRequest) {
       // Send a comment to establish the stream
       controller.enqueue(new TextEncoder().encode(": connected\n\n"));
 
-      // Real-time polling from Twitter API
+      // Real-time polling from Twitter RapidAPI
       let lastSeen = new Set<string>();
 
       const pollFn = async () => {
         try {
-          const posts = await getUserTweets(bearerToken, userId, 25);
+          const posts = await getUserTweets(username, 25);
           // send only new posts
           for (const p of posts.reverse()) {
             if (!lastSeen.has(p.postId)) {
