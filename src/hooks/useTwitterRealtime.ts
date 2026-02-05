@@ -3,37 +3,37 @@ import type { SocialPost } from "@/types";
 
 type Status = "idle" | "connecting" | "open" | "closed" | "error";
 
+// Real-time hook for Twitter posts
+// Requires userId and bearerToken to be passed
 export function useTwitterRealtime(options?: {
-  url?: string;
-  mode?: "demo" | "poll";
   userId?: string;
-  bearer?: string;
+  bearerToken?: string;
 }) {
-  const {
-    url = "/api/realtime/twitter?mode=demo",
-    mode,
-    userId,
-    bearer,
-  } = options || {};
+  const { userId, bearerToken } = options || {};
   const [data, setData] = useState<SocialPost[]>([]);
   const [status, setStatus] = useState<Status>("idle");
   const [error, setError] = useState<string | null>(null);
   const esRef = useRef<EventSource | null>(null);
 
   useEffect(() => {
+    if (!userId || !bearerToken) {
+      setStatus("error");
+      setError("Missing userId and bearerToken");
+      return;
+    }
+
     setStatus("connecting");
     setError(null);
 
-    // Build URL with optional params
-    const connectUrl = new URL(
-      url,
+    // Build URL with required params
+    const url = new URL(
+      "/api/realtime/twitter",
       typeof window !== "undefined" ? window.location.origin : "",
     );
-    if (mode) connectUrl.searchParams.set("mode", mode);
-    if (userId) connectUrl.searchParams.set("userId", userId);
-    if (bearer) connectUrl.searchParams.set("bearer", bearer);
+    url.searchParams.set("userId", userId);
+    url.searchParams.set("bearerToken", bearerToken);
 
-    const es = new EventSource(connectUrl.toString());
+    const es = new EventSource(url.toString());
     esRef.current = es;
 
     es.onopen = () => setStatus("open");
@@ -64,8 +64,4 @@ export function useTwitterRealtime(options?: {
       es.close();
       setStatus("closed");
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [url, mode, userId, bearer]);
-
-  return { data, status, error, close: () => esRef.current?.close() } as const;
-}
+  }, [userId, bearerToken]);

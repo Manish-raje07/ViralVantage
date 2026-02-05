@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Edit, Trash2, UserPlus } from "lucide-react";
@@ -13,20 +13,45 @@ type User = {
   status: "active" | "invited" | "suspended";
 };
 
-const demoUsers: User[] = [
-  { id: "1", name: "Alice", role: "admin", email: "alice@email.com", status: "active" },
-  { id: "2", name: "Bob", role: "editor", email: "bob@email.com", status: "active" },
-  { id: "3", name: "Charlie", role: "viewer", email: "charlie@email.com", status: "invited" },
-  { id: "4", name: "Dana", role: "editor", email: "dana@email.com", status: "suspended" },
-];
-
 export function UsersSection() {
-  const [users] = useState<User[]>(demoUsers);
+  const [users, setUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        setLoading(true);
+        // In a real app, this would fetch from a users API endpoint
+        // For now, we'll return empty as demo data is removed
+        setUsers([]);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Error loading users');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUsers();
+  }, []);
 
   // Placeholder CRUD handlers
   const handleAdd = () => {};
   const handleEdit = () => {};
   const handleDelete = () => {};
+
+  if (error) {
+    return (
+      <div>
+        <h2 className="text-xl font-bold mb-6">User Management</h2>
+        <Card className="border-red-200 bg-red-50">
+          <CardContent className="pt-6">
+            <p className="text-red-700">{error}</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -37,17 +62,24 @@ export function UsersSection() {
           Invite User
         </Button>
       </div>
-      <div className="grid gap-4">
-        {users.map((user) => (
-          <Card key={user.id}>
-            <CardHeader>
-              <CardTitle className="flex items-center justify-between">
-                <span>{user.name} ({user.role})</span>
-                <span
-                  className={
-                    user.status === "active"
-                      ? "text-green-600"
-                      : user.status === "invited"
+      {users.length === 0 ? (
+        <Card>
+          <CardContent className="pt-6 text-center text-muted-foreground">
+            <p>No users available. Connect to real user API to load data.</p>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="grid gap-4">
+          {users.map((user) => (
+            <Card key={user.id}>
+              <CardHeader>
+                <CardTitle className="flex items-center justify-between">
+                  <span>{user.name} ({user.role})</span>
+                  <span
+                    className={
+                      user.status === "active"
+                        ? "text-green-600"
+                        : user.status === "invited"
                       ? "text-blue-600"
                       : "text-red-600"
                   }

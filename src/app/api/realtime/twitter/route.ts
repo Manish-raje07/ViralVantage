@@ -1,13 +1,26 @@
 import { NextRequest } from "next/server";
-import { generateSampleTwitterData, getUserTweets } from "@/lib/social/twitter";
+import { getUserTweets } from "@/lib/social/twitter";
 
 export const runtime = "nodejs";
 
+// Real-time Twitter streaming endpoint
+// Requires userId and bearerToken in query params or env vars
 export async function GET(req: NextRequest) {
   const url = new URL(req.url);
-  const mode = url.searchParams.get("mode") || "demo";
-  const userId = url.searchParams.get("userId") || undefined;
-  const bearer = url.searchParams.get("bearer") || undefined;
+  const userId = url.searchParams.get("userId") || process.env.TWITTER_USER_ID;
+  const bearerToken =
+    url.searchParams.get("bearerToken") || process.env.TWITTER_BEARER_TOKEN;
+
+  if (!userId || !bearerToken) {
+    return new Response(
+      JSON.stringify({
+        error: "Missing credentials",
+        message:
+          "Provide userId and bearerToken as query params or set TWITTER_USER_ID and TWITTER_BEARER_TOKEN env vars",
+      }),
+      { status: 400, headers: { "Content-Type": "application/json" } },
+    );
+  }
 
   const headers = new Headers({
     "Content-Type": "text/event-stream",
@@ -33,59 +46,32 @@ export async function GET(req: NextRequest) {
       // Send a comment to establish the stream
       controller.enqueue(new TextEncoder().encode(": connected\n\n"));
 
-      if (mode === "demo") {
-        // Demo mode: push generated sample tweets periodically
-        const samples = generateSampleTwitterData();
-        let idx = 0;
-        const interval = setInterval(() => {
-          if (closed) return;
-          const item = samples[idx % samples.length];
-          pushEvent("tweet", item);
-          idx += 1;
-        }, 3000);
+      // Real-time polling from Twitter API
+      let lastSeen = new Set<string>();
 
-        // Stop when cancelled
-        controller.signal.addEventListener("abort", () => {
-          closed = true;
-          clearInterval(interval);
-          controller.close();
-        });
-      } else {
-        // Polling mode (uses real Twitter API). Requires `userId` and `bearer`.
-        if (!userId || !bearer) {
-          pushEvent("error", {
-            message: "Missing userId or bearer token for poll mode",
-          });
-          controller.close();
-          return;
-        }
-
-        let lastSeen = new Set<string>();
-
-        const pollFn = async () => {
-          try {
-            const posts = await getUserTweets(bearer, userId, 25);
-            // send only new posts
-            for (const p of posts.reverse()) {
-              if (!lastSeen.has(p.postId)) {
-                pushEvent("tweet", p);
-                lastSeen.add(p.postId);
-              }
+      const pollFn = async () => {
+        try {
+          const posts = await getUserTweets(bearerToken, userId, 25);
+          // send only new posts
+          for (const p of posts.reverse()) {
+            if (!lastSeen.has(p.postId)) {
+              pushEvent("tweet", p);
+              lastSeen.add(p.postId);
             }
-          } catch (e) {
-            pushEvent("error", { message: "Polling error", detail: String(e) });
           }
-        };
+        } catch (e) {
+          pushEvent("error", { message: "Polling error", detail: String(e) });
+        }
+      };
 
-        // initial poll then interval
-        await pollFn();
-        const interval = setInterval(pollFn, 5000);
+      // initial poll then interval
+      await pollFn();
+      const interval = setInterval(pollFn, 5000);
 
-        controller.signal.addEventListener("abort", () => {
-          clearInterval(interval);
-          controller.close();
-        });
-      }
+      controller.signal.addEventListener("abort", () => {
+        clearInterval(interval);
+        controller.close();
+      });
     },
   });
 

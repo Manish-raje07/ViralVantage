@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Plus, Edit, Trash2, Calendar, Eye, Heart, MessageCircle, Share, BarChart3, Clock } from "lucide-react";
@@ -22,81 +22,45 @@ type Post = {
   campaign?: string;
 };
 
-const demoPosts: Post[] = [
-  {
-    id: "1",
-    content: "🚀 Exciting news! Our new summer collection is launching next week. Get ready for vibrant colors and sustainable materials that will transform your wardrobe! #SummerFashion #Sustainable #NewCollection",
-    platforms: ["Instagram", "Facebook", "Twitter"],
-    scheduledAt: "2025-06-12T10:00:00Z",
-    status: "scheduled",
-    mediaType: "carousel",
-    tags: ["summer", "fashion", "sustainable", "launch"],
-    campaign: "Summer Product Launch",
-  },
-  {
-    id: "2",
-    content: "🎉 Milestone alert! We've just hit 10,000 amazing followers! Thank you for being part of our incredible journey. Here's to the next 10K! 💪 #Milestone #ThankYou #Community",
-    platforms: ["Instagram", "Facebook", "LinkedIn"],
-    scheduledAt: "2025-06-10T14:00:00Z",
-    status: "posted",
-    mediaType: "image",
-    engagement: {
-      likes: 2847,
-      comments: 156,
-      shares: 89,
-      views: 15420,
-    },
-    tags: ["milestone", "community", "thankyou"],
-    campaign: "Brand Awareness Q2",
-  },
-  {
-    id: "3",
-    content: "⚠️ Maintenance Notice: Our servers will be undergoing scheduled maintenance tonight from 11 PM to 3 AM EST. We apologize for any inconvenience. #Maintenance #ServerUpdate",
-    platforms: ["Twitter", "LinkedIn"],
-    scheduledAt: "2025-06-09T22:00:00Z",
-    status: "failed",
-    mediaType: "text",
-    tags: ["maintenance", "notice", "server"],
-  },
-  {
-    id: "4",
-    content: "💡 Behind the scenes: Ever wondered how we create our products? Take a peek into our design studio where innovation meets creativity! #BehindTheScenes #Design #Innovation",
-    platforms: ["TikTok", "Instagram"],
-    scheduledAt: "2025-06-13T16:00:00Z",
-    status: "scheduled",
-    mediaType: "video",
-    tags: ["behindthescenes", "design", "innovation"],
-    campaign: "Gen Z Engagement",
-  },
-  {
-    id: "5",
-    content: "📊 Industry Insight: The future of social media marketing lies in authentic storytelling and genuine community building. What's your take? #MarketingTips #Industry #SocialMedia",
-    platforms: ["LinkedIn"],
-    scheduledAt: "2025-06-11T09:00:00Z",
-    status: "posted",
-    mediaType: "text",
-    engagement: {
-      likes: 234,
-      comments: 67,
-      shares: 45,
-      views: 3420,
-    },
-    tags: ["marketing", "industry", "insights"],
-    campaign: "B2B Lead Generation",
-  },
-  {
-    id: "6",
-    content: "🌟 Customer Spotlight: Meet Sarah, who transformed her style with our pieces! Share your transformation story in the comments. #CustomerSpotlight #Transformation #Style",
-    platforms: ["Instagram", "Facebook"],
-    scheduledAt: "2025-06-14T12:00:00Z",
-    status: "draft",
-    mediaType: "image",
-    tags: ["customer", "spotlight", "transformation"],
-  },
-];
-
 export function PostsSection() {
-  const [posts] = useState<Post[]>(demoPosts);
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchPosts = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch('/api/analytics?type=posts');
+        if (!response.ok) throw new Error('Failed to fetch posts');
+        const data = await response.json();
+        // Transform API data to component format
+        const transformedPosts = (data.data?.posts || []).map((p: any) => ({
+          id: p.postId || p.id,
+          content: p.content,
+          platforms: [p.platform || 'Twitter'],
+          scheduledAt: p.publishedAt,
+          status: 'posted' as const,
+          mediaType: p.type || 'text',
+          engagement: {
+            likes: p.metrics?.likes || 0,
+            comments: p.metrics?.comments || 0,
+            shares: p.metrics?.shares || 0,
+            views: p.metrics?.impressions || 0,
+          },
+          tags: p.hashtags || [],
+        }));
+        setPosts(transformedPosts);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Error loading posts');
+        setPosts([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPosts();
+  }, []);
 
   // Placeholder CRUD handlers
   const handleAdd = () => {};
@@ -127,6 +91,19 @@ export function PostsSection() {
   const scheduledPosts = posts.filter(p => p.status === "scheduled").length;
   const postedPosts = posts.filter(p => p.status === "posted").length;
   const draftPosts = posts.filter(p => p.status === "draft").length;
+
+  if (error) {
+    return (
+      <div className="space-y-4">
+        <h2 className="text-xl font-bold">Content Management</h2>
+        <Card className="border-red-200 bg-red-50">
+          <CardContent className="pt-6">
+            <p className="text-red-700">{error}</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">
