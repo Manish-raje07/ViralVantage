@@ -3,22 +3,21 @@ import type { SocialPost } from "@/types";
 
 type Status = "idle" | "connecting" | "open" | "closed" | "error";
 
-// Real-time hook for Twitter posts
-// Requires userId and bearerToken to be passed
+// Real-time hook for Twitter posts via RapidAPI
+// Requires username to be passed
 export function useTwitterRealtime(options?: {
-  userId?: string;
-  bearerToken?: string;
+  username?: string;
 }) {
-  const { userId, bearerToken } = options || {};
+  const { username = "twitter" } = options || {};
   const [data, setData] = useState<SocialPost[]>([]);
   const [status, setStatus] = useState<Status>("idle");
   const [error, setError] = useState<string | null>(null);
   const esRef = useRef<EventSource | null>(null);
 
   useEffect(() => {
-    if (!userId || !bearerToken) {
+    if (!username) {
       setStatus("error");
-      setError("Missing userId and bearerToken");
+      setError("Missing username");
       return;
     }
 
@@ -30,8 +29,7 @@ export function useTwitterRealtime(options?: {
       "/api/realtime/twitter",
       typeof window !== "undefined" ? window.location.origin : "",
     );
-    url.searchParams.set("userId", userId);
-    url.searchParams.set("bearerToken", bearerToken);
+    url.searchParams.set("username", username);
 
     const es = new EventSource(url.toString());
     esRef.current = es;
@@ -64,4 +62,4 @@ export function useTwitterRealtime(options?: {
       es.close();
       setStatus("closed");
     };
-  }, [userId, bearerToken]);
+  }, [username]);
